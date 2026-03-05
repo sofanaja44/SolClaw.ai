@@ -1,0 +1,38 @@
+{
+  "name": "solana-ai-trading-bot",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "build": "tsc",
+    "dev": "tsx watch src/index.ts"
+  },
+  "keywords": [
+    "solana",
+    "jupiter",
+    "trading",
+    "bot",
+    "ai"
+  ],
+  "author": "",
+  "license": "ISC",
+  "description": "Solana AI Trading Bot — Jupiter DEX + OpenRouter Agent",
+  "dependencies": {
+    "@solana/web3.js": "^1.98.4",
+    "better-sqlite3": "^12.6.2",
+    "bs58": "^6.0.0",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "winston": "^3.19.0",
+    "ws": "^8.19.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.3.3",
+    "@types/ws": "^8.18.1",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}
