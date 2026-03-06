@@ -183,7 +183,7 @@ ${tokenList}
 PORTFOLIO:
   Balance: ${state.balanceSol.toFixed(4)} SOL
   Daily PnL: ${state.dailyPnL > 0 ? '+' : ''}${state.dailyPnL.toFixed(4)} SOL
-  Max Position: ${CONFIG.MAX_POSITION_SOL} SOL
+  Max Position: ${(state.balanceSol * CONFIG.POSITION_SIZE_PCT / 100).toFixed(4)} SOL (${CONFIG.POSITION_SIZE_PCT}% of balance)
   Trades today: ${state.tradesCount}
 
 OPEN POSITIONS:

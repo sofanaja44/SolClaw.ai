@@ -8,6 +8,7 @@ import { StateManager } from './state/manager.js';
 import { MarketScanner } from './engine/scanner.js';
 import { TradeExecutor } from './engine/executor.js';
 import { PositionMonitor } from './engine/monitor.js';
+import { WhaleTracker } from './engine/whale.js';
 import { logger } from './utils/logger.js';
 import { DashboardServer } from './server/index.js';
 import { alertStatus, isTelegramEnabled } from './utils/telegram.js';
@@ -28,6 +29,7 @@ class TradingBot {
     private scanner: MarketScanner;
     private executor: TradeExecutor;
     private monitor: PositionMonitor;
+    private whaleTracker: WhaleTracker;
     private tokenRegistry: TokenRegistry;
     private dashboard: DashboardServer;
 
@@ -59,6 +61,11 @@ class TradingBot {
             this.jupiter,
             this.ai,
             this.stateManager,
+            this.executor
+        );
+        this.whaleTracker = new WhaleTracker(
+            this.stateManager,
+            this.jupiter,
             this.executor
         );
 
@@ -120,6 +127,13 @@ class TradingBot {
 
         // Start web dashboard
         await this.dashboard.start();
+
+        // Start whale tracker
+        this.whaleTracker.onWhaleSwap = (swap) => {
+            this.dashboard.broadcast('whale_swap', swap);
+            logger.info(`🐳 Whale swap detected: ${swap.tokenSymbol} by ${swap.wallet.slice(0, 8)}...`);
+        };
+        await this.whaleTracker.start();
 
         // Run first scan immediately
         await this.scanAndTrade();
@@ -227,6 +241,7 @@ class TradingBot {
         if (this.scanInterval) clearInterval(this.scanInterval);
         if (this.monitorInterval) clearInterval(this.monitorInterval);
         if (this.dashboardInterval) clearInterval(this.dashboardInterval);
+        this.whaleTracker.stop();
         this.dashboard.stop();
 
         const stats = this.stateManager.getDailyStats();
