@@ -328,4 +328,97 @@ export class TradeExecutor {
             logTrade({ type: 'SELL', token: position.token, pnl, pnlUsd: pnl * solPrice, status: 'SUCCESS', reasoning: reason });
         }
     }
+
+    /**
+     * 🐾 Phase 4: Partial Take-Profit
+     * Sell a percentage of a position while keeping the rest open.
+     * This locks in profits while letting the "moonbag" ride.
+     */
+    async executePartialClose(position: Position, sellPct: number, reason: string): Promise<void> {
+        const mode = CONFIG.PAPER_TRADING ? '📋' : '🔴';
+        logger.info(`${mode} Partial Close (${sellPct}%): ${position.token} — ${reason}`);
+
+        // Save original amounts on first partial
+        if (!position.originalAmount) {
+            position.originalAmount = position.amount;
+            position.originalAmountSol = position.amountSol;
+        }
+
+        const sellAmount = position.amount * (sellPct / 100);
+        const sellAmountSol = position.amountSol * (sellPct / 100);
+
+        if (sellAmount <= 0) {
+            logger.warn(`⚠️ Nothing to partial-sell for ${position.token}`);
+            return;
+        }
+
+        let token = this.tokenRegistry.get(position.mint);
+        if (!token) {
+            let decimals = 6;
+            try {
+                const res = await fetch(`https://api.jup.ag/tokens/v1/token/${position.mint}`);
+                if (res.ok) {
+                    const meta = (await res.json()) as { decimals?: number };
+                    if (meta.decimals !== undefined) decimals = meta.decimals;
+                }
+            } catch { /* use default */ }
+            this.tokenRegistry.add({ mint: position.mint, symbol: position.token, name: position.token, decimals });
+            token = this.tokenRegistry.get(position.mint)!;
+        }
+
+        const rawSellAmount = Math.floor(sellAmount * Math.pow(10, token.decimals)).toString();
+
+        const result = await this.jupiter.executeSwap({
+            inputMint: position.mint,
+            outputMint: CORE_TOKENS.SOL.mint,
+            amount: rawSellAmount,
+        });
+
+        let soldSol = parseInt(result.outAmount) / 1e9;
+
+        // Sanity check
+        const maxReasonable = sellAmountSol * 10;
+        if (soldSol > maxReasonable) {
+            logger.warn(`🚨 SANITY: partial soldSol=${soldSol.toFixed(4)} too high. Capping.`);
+            soldSol = sellAmountSol;
+        }
+
+        const pnl = soldSol - sellAmountSol;
+
+        this.stateManager.recordTrade({
+            timestamp: new Date().toISOString(),
+            type: 'SELL',
+            inputMint: position.mint,
+            outputMint: CORE_TOKENS.SOL.mint,
+            inputAmount: rawSellAmount,
+            outputAmount: result.outAmount,
+            priceImpactPct: parseFloat(result.priceImpactPct),
+            slippageBps: result.slippageBps,
+            txHash: result.txHash,
+            status: result.success ? 'SUCCESS' : 'FAILED',
+            errorReason: result.error || '',
+            aiReasoning: `[PARTIAL ${sellPct}%] ${reason}`,
+            tp: position.tp, sl: position.sl,
+            pnl: result.success ? pnl : 0,
+            tokenName: position.token,
+        });
+
+        if (result.success) {
+            // Reduce position size (keep remaining open)
+            position.amount -= sellAmount;
+            position.amountSol -= sellAmountSol;
+            position.partialTpStage = (position.partialTpStage || 0) + 1;
+
+            // Add sold SOL back to balance
+            this.stateManager.state.balanceSol += soldSol;
+            this.stateManager.savePosition(position);
+
+            const emoji = '💎';
+            const solPrice = await this.jupiter.price.getPrice('So11111111111111111111111111111111111111112') || 90;
+            logger.info(`${emoji} Partial TP #${position.partialTpStage}: Sold ${sellPct}% of ${position.token} | PnL=${pnl > 0 ? '+' : ''}${pnl.toFixed(6)} SOL ($${(pnl * solPrice).toFixed(2)})`);
+            logger.info(`   Remaining: ${(position.amount).toFixed(2)} tokens (${position.amountSol.toFixed(4)} SOL) — moonbag riding! 🌙`);
+
+            alertSell({ token: `${position.token} (${sellPct}% partial)`, pnlSol: pnl, pnlUsd: pnl * solPrice, reason }).catch(() => { });
+        }
+    }
 }

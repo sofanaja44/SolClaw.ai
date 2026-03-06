@@ -66,6 +66,12 @@ export class PositionMonitor {
                 this.updateTrailingStopLoss(position, currentPrice);
             }
 
+            // ─── Phase 4: Partial Take-Profit ───
+            if (CONFIG.PARTIAL_TP_ENABLED) {
+                const partialResult = await this.checkPartialTP(position, currentPrice);
+                if (partialResult) continue; // partial TP executed, skip full close check
+            }
+
             // ─── Check TP/SL (including trailing SL) ───
             const closeReason = this.checkTPSL(position, currentPrice);
 
@@ -90,8 +96,11 @@ export class PositionMonitor {
                     const trailInfo = position.trailingActive
                         ? ` [TRAILING SL=$${position.sl.toFixed(8)}]`
                         : '';
+                    const partialInfo = position.partialTpStage
+                        ? ` [TP${position.partialTpStage}/2]`
+                        : '';
                     logger.debug(
-                        `${emoji} ${position.token}: $${currentPrice.toFixed(8)} (${pnlPct > 0 ? '+' : ''}${pnlPct.toFixed(1)}%)${trailInfo}`
+                        `${emoji} ${position.token}: $${currentPrice.toFixed(8)} (${pnlPct > 0 ? '+' : ''}${pnlPct.toFixed(1)}%)${trailInfo}${partialInfo}`
                     );
                 }
             }
@@ -157,12 +166,14 @@ export class PositionMonitor {
      * Check if TP or SL is hit.
      */
     private checkTPSL(position: typeof this.stateManager.state.positions[0], currentPrice: number): string | null {
-        // Take Profit hit
-        if (currentPrice >= position.tp) {
+        // Take Profit hit (only if no partial TP stages remain, or partial TP is disabled)
+        // After all partial TPs are done (stage >= 2), the moonbag only uses trailing SL
+        const partialDone = CONFIG.PARTIAL_TP_ENABLED && (position.partialTpStage || 0) >= 2;
+        if (!partialDone && currentPrice >= position.tp) {
             return `🎯 Take Profit hit! ${position.token}: Entry=$${position.entryPrice.toFixed(8)}, TP=$${position.tp.toFixed(8)}, Current=$${currentPrice.toFixed(8)}`;
         }
 
-        // Stop Loss hit (includes trailing SL)
+        // Stop Loss hit (includes trailing SL) — always active
         if (currentPrice <= position.sl) {
             const trailInfo = position.trailingActive ? ' (Trailing)' : '';
             return `🛑 Stop Loss${trailInfo} hit! ${position.token}: Entry=$${position.entryPrice.toFixed(8)}, SL=$${position.sl.toFixed(8)}, Current=$${currentPrice.toFixed(8)}`;
@@ -170,4 +181,45 @@ export class PositionMonitor {
 
         return null;
     }
+
+    /**
+     * 🐾 Phase 4: Check if partial take-profit should trigger.
+     * 
+     * Stage 1: Price +50% from entry → Sell 50% of position
+     * Stage 2: Price +100% from entry → Sell 50% of remaining
+     * Stage 3: Remaining "moonbag" rides with trailing SL only
+     * 
+     * Returns true if a partial close was executed (caller should skip full close).
+     */
+    private async checkPartialTP(position: typeof this.stateManager.state.positions[0], currentPrice: number): Promise<boolean> {
+        const stage = position.partialTpStage || 0;
+        const pnlPct = ((currentPrice - position.entryPrice) / position.entryPrice) * 100;
+
+        // Stage 1: First partial TP
+        if (stage === 0 && pnlPct >= CONFIG.PARTIAL_TP_1_PCT) {
+            const sellPct = CONFIG.PARTIAL_TP_1_SELL;
+            logger.info(`💎 Partial TP Stage 1: ${position.token} at +${pnlPct.toFixed(1)}% — selling ${sellPct}% of position`);
+            await this.executor.executePartialClose(
+                position, sellPct,
+                `Partial TP #1: +${pnlPct.toFixed(1)}% profit, securing ${sellPct}% of position`
+            );
+            return true;
+        }
+
+        // Stage 2: Second partial TP
+        if (stage === 1 && pnlPct >= CONFIG.PARTIAL_TP_2_PCT) {
+            const sellPct = CONFIG.PARTIAL_TP_2_SELL;
+            logger.info(`💎 Partial TP Stage 2: ${position.token} at +${pnlPct.toFixed(1)}% — selling ${sellPct}% of remaining`);
+            await this.executor.executePartialClose(
+                position, sellPct,
+                `Partial TP #2: +${pnlPct.toFixed(1)}% profit, securing ${sellPct}% of remaining. Rest = moonbag 🌙`
+            );
+            // After stage 2, disable fixed TP — moonbag rides with trailing SL only
+            logger.info(`🌙 ${position.token}: Moonbag mode activated! Remaining position rides with trailing SL only.`);
+            return true;
+        }
+
+        return false;
+    }
 }
+

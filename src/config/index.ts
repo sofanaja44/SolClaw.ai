@@ -91,6 +91,32 @@ export const CONFIG = {
 
     // Breakeven lock: move SL to entry price once X% profit is reached
     BREAKEVEN_LOCK_PCT: parseFloat(optionalEnv('BREAKEVEN_LOCK_PCT', '2')),
+
+    // ═══════════════════════════════════
+    // PHASE 4: PARTIAL TAKE-PROFIT (SCALING OUT)
+    // ═══════════════════════════════════
+
+    // Enable partial TP — sell portions at different profit levels
+    PARTIAL_TP_ENABLED: optionalEnv('PARTIAL_TP_ENABLED', 'true') === 'true',
+
+    // Stage 1: Sell 50% of position at this % profit (secure the bag)
+    PARTIAL_TP_1_PCT: parseFloat(optionalEnv('PARTIAL_TP_1_PCT', '50')),
+    PARTIAL_TP_1_SELL: parseFloat(optionalEnv('PARTIAL_TP_1_SELL', '50')),
+
+    // Stage 2: Sell 25% of REMAINING position at this % profit
+    PARTIAL_TP_2_PCT: parseFloat(optionalEnv('PARTIAL_TP_2_PCT', '100')),
+    PARTIAL_TP_2_SELL: parseFloat(optionalEnv('PARTIAL_TP_2_SELL', '50')),
+
+    // Stage 3: Remaining "moonbag" rides with trailing SL only (no fixed TP)
+
+    // ═══════════════════════════════════
+    // PHASE 4: WHALE COPY TRADING
+    // ═══════════════════════════════════
+
+    WHALE_TRACKING_ENABLED: optionalEnv('WHALE_TRACKING_ENABLED', 'false') === 'true',
+    // Comma-separated list of whale wallet addresses to copy
+    WHALE_WALLETS: optionalEnv('WHALE_WALLETS', '').split(',').filter(w => w.trim()),
+    WHALE_POLL_INTERVAL_MS: parseInt(optionalEnv('WHALE_POLL_INTERVAL_MS', '30000')),
 } as const;
 
 /** Calculate position size in SOL based on % of balance */
@@ -124,5 +150,7 @@ export function validateConfig(): void {
     console.log(`  🛡️  Jito MEV: ${CONFIG.JITO_ENABLED ? 'ON' : 'OFF'}`);
     console.log(`  🔄 Trailing SL: ${CONFIG.TRAILING_SL_ENABLED ? `ON (activate: +${CONFIG.TRAILING_SL_ACTIVATION_PCT}%, trail: ${CONFIG.TRAILING_SL_DISTANCE_PCT}%)` : 'OFF'}`);
     console.log(`  🔒 Breakeven Lock: +${CONFIG.BREAKEVEN_LOCK_PCT}%`);
+    console.log(`  💎 Partial TP: ${CONFIG.PARTIAL_TP_ENABLED ? `ON (Stage1: +${CONFIG.PARTIAL_TP_1_PCT}%→${CONFIG.PARTIAL_TP_1_SELL}%, Stage2: +${CONFIG.PARTIAL_TP_2_PCT}%→${CONFIG.PARTIAL_TP_2_SELL}%)` : 'OFF'}`);
+    console.log(`  🐳 Whale Tracking: ${CONFIG.WHALE_TRACKING_ENABLED ? `ON (${CONFIG.WHALE_WALLETS.length} wallets)` : 'OFF'}`);
     console.log('');
 }

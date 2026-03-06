@@ -125,6 +125,10 @@ export interface Position {
     highestPrice?: number;      // highest price since entry (for trailing SL)
     trailingActive?: boolean;   // true once price exceeds breakeven threshold
     originalSl?: number;        // backup of the initial SL before trailing kicks in
+    // Phase 4: Partial Take-Profit
+    partialTpStage?: number;    // 0=none, 1=first partial sold, 2=second partial sold
+    originalAmount?: number;    // original token amount at entry (before partial sells)
+    originalAmountSol?: number; // original SOL amount at entry
 }
 
 export interface TradeRecord {
