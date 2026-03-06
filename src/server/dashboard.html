@@ -574,8 +574,15 @@
     }
 
     /* ═══ TABLE ═══ */
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
     table {
       width: 100%;
+      min-width: 500px;
       border-collapse: collapse
     }
 
@@ -587,13 +594,18 @@
       color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.7px;
-      border-bottom: 1px solid var(--border)
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap
     }
 
     td {
       padding: 11px 14px;
       font-size: 12px;
-      border-bottom: 1px solid rgba(88, 100, 220, 0.05)
+      border-bottom: 1px solid rgba(88, 100, 220, 0.05);
+      white-space: nowrap;
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis
     }
 
     tr:hover td {
@@ -790,17 +802,82 @@
       }
     }
 
-    @media(max-width:700px) {
+    @media(max-width:900px) {
       .cards {
         grid-template-columns: repeat(2, 1fr)
       }
 
-      .main {
-        padding: 12px
+      .header {
+        flex-wrap: wrap;
+        height: auto;
+        padding: 10px 14px;
+        gap: 8px
       }
 
-      .header {
-        padding: 0 14px
+      .header-left,
+      .header-right {
+        width: 100%;
+        justify-content: space-between
+      }
+
+      .header-badges {
+        flex-wrap: wrap
+      }
+
+      .scanner-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr))
+      }
+
+      .toast-container {
+        left: 12px;
+        right: 12px;
+        max-width: 100%
+      }
+    }
+
+    @media(max-width:600px) {
+      .cards {
+        grid-template-columns: 1fr
+      }
+
+      .main {
+        padding: 10px
+      }
+
+      .card-value {
+        font-size: 20px
+      }
+
+      .panel-head {
+        padding: 10px 12px
+      }
+
+      .ai-entry {
+        padding: 10px 12px
+      }
+
+      .coin {
+        padding: 7px 10px
+      }
+
+      table {
+        min-width: 400px
+      }
+
+      th,
+      td {
+        padding: 8px 10px;
+        font-size: 11px
+      }
+
+      .logo {
+        font-size: 15px
+      }
+
+      .logo-icon {
+        width: 28px;
+        height: 28px;
+        font-size: 13px
       }
     }
   </style>
@@ -889,7 +966,7 @@
             <div class="panel-title"><i class="fa-solid fa-crosshairs"></i> Active Positions</div>
             <span class="pill" id="posCountBadge">0</span>
           </div>
-          <div style="overflow-x:auto">
+          <div class="table-wrap">
             <table>
               <thead>
                 <tr>
@@ -916,7 +993,7 @@
             <div class="panel-title"><i class="fa-solid fa-clock-rotate-left"></i> Trade History</div>
             <span class="pill" id="tradeCountBadge">0</span>
           </div>
-          <div style="max-height:280px;overflow-y:auto">
+          <div class="table-wrap" style="max-height:280px;overflow-y:auto">
             <table>
               <thead>
                 <tr>
