@@ -3,9 +3,13 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
   <title>SolClaw.ai — Dashboard</title>
   <meta name="description" content="Real-time monitoring dashboard for SolClaw.ai — Solana Meme Coin Trading Bot">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#050816">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
@@ -44,6 +48,9 @@
       --mono: 'JetBrains Mono', 'Fira Code', monospace;
       --shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
       --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.35);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-top: env(safe-area-inset-top, 0px);
+      --nav-h: 60px;
     }
 
     * {
@@ -52,12 +59,19 @@
       box-sizing: border-box
     }
 
+    html {
+      height: 100%;
+      -webkit-tap-highlight-color: transparent
+    }
+
     body {
       font-family: var(--font);
       background: var(--bg-primary);
       color: var(--text-primary);
       min-height: 100vh;
-      overflow-x: hidden
+      min-height: 100dvh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased
     }
 
     body::before {
@@ -67,7 +81,9 @@
       left: -50%;
       width: 200%;
       height: 200%;
-      background: radial-gradient(ellipse at 25% 15%, rgba(99, 102, 241, 0.05) 0%, transparent 50%), radial-gradient(ellipse at 75% 85%, rgba(16, 185, 129, 0.03) 0%, transparent 50%), radial-gradient(ellipse at 50% 50%, rgba(6, 182, 212, 0.02) 0%, transparent 60%);
+      background: radial-gradient(ellipse at 25% 15%, rgba(99, 102, 241, 0.05) 0%, transparent 50%),
+        radial-gradient(ellipse at 75% 85%, rgba(16, 185, 129, 0.03) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(6, 182, 212, 0.02) 0%, transparent 60%);
       animation: bgShift 25s ease-in-out infinite alternate;
       z-index: 0;
       pointer-events: none
@@ -86,23 +102,25 @@
     /* ═══ TOAST ═══ */
     .toast-container {
       position: fixed;
-      top: 76px;
-      right: 20px;
+      top: 10px;
+      right: 10px;
+      left: 10px;
       z-index: 9999;
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      max-width: 380px
+      gap: 8px;
+      pointer-events: none
     }
 
     .toast {
-      padding: 14px 18px;
+      pointer-events: all;
+      padding: 12px 14px;
       border-radius: var(--radius-sm);
       backdrop-filter: blur(24px);
       border: 1px solid;
       display: flex;
       align-items: flex-start;
-      gap: 12px;
+      gap: 10px;
       cursor: pointer;
       transition: all 0.3s;
       animation: toastIn 0.4s cubic-bezier(0.16, 1, 0.3, 1)
@@ -131,13 +149,13 @@
     }
 
     .toast-icon {
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 16px;
+      font-size: 14px;
       flex-shrink: 0
     }
 
@@ -163,8 +181,8 @@
 
     .toast-title {
       font-weight: 700;
-      font-size: 13px;
-      margin-bottom: 2px
+      font-size: 12px;
+      margin-bottom: 1px
     }
 
     .toast.win .toast-title {
@@ -180,7 +198,7 @@
     }
 
     .toast-detail {
-      font-size: 11px;
+      font-size: 10px;
       color: var(--text-secondary);
       font-family: var(--mono);
       white-space: nowrap;
@@ -203,12 +221,12 @@
     @keyframes toastIn {
       from {
         opacity: 0;
-        transform: translateX(80px) scale(0.95)
+        transform: translateY(-20px) scale(0.95)
       }
 
       to {
         opacity: 1;
-        transform: translateX(0) scale(1)
+        transform: translateY(0) scale(1)
       }
     }
 
@@ -232,37 +250,38 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 28px;
-      height: 56px;
-      background: rgba(5, 8, 22, 0.88);
+      padding: 0 20px;
+      height: 52px;
+      background: rgba(5, 8, 22, 0.92);
       backdrop-filter: blur(24px) saturate(1.4);
-      border-bottom: 1px solid var(--border)
+      border-bottom: 1px solid var(--border);
+      padding-top: var(--safe-top)
     }
 
     .header-left {
       display: flex;
       align-items: center;
-      gap: 16px
+      gap: 10px
     }
 
     .logo {
       display: flex;
       align-items: center;
-      gap: 10px;
-      font-size: 17px;
+      gap: 8px;
+      font-size: 16px;
       font-weight: 800;
       letter-spacing: -0.5px
     }
 
     .logo-icon {
-      width: 32px;
-      height: 32px;
-      border-radius: 10px;
+      width: 30px;
+      height: 30px;
+      border-radius: 9px;
       background: linear-gradient(135deg, var(--accent), #818cf8);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 15px;
+      font-size: 13px;
       color: #fff;
       box-shadow: 0 2px 12px rgba(99, 102, 241, 0.3)
     }
@@ -275,16 +294,16 @@
     .header-badges {
       display: flex;
       align-items: center;
-      gap: 8px
+      gap: 6px
     }
 
     .badge-status {
       display: flex;
       align-items: center;
-      gap: 6px;
-      padding: 4px 12px;
+      gap: 5px;
+      padding: 3px 10px;
       border-radius: 20px;
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 600;
       letter-spacing: 0.3px
     }
@@ -302,8 +321,8 @@
     }
 
     .status-dot {
-      width: 6px;
-      height: 6px;
+      width: 5px;
+      height: 5px;
       border-radius: 50%;
       animation: pulse 2s infinite
     }
@@ -329,9 +348,9 @@
     }
 
     .badge-mode {
-      padding: 4px 10px;
+      padding: 3px 8px;
       border-radius: 6px;
-      font-size: 10px;
+      font-size: 9px;
       font-weight: 700;
       letter-spacing: 0.5px;
       text-transform: uppercase
@@ -350,13 +369,13 @@
     }
 
     .badge-ws {
-      padding: 3px 8px;
+      padding: 2px 6px;
       border-radius: 6px;
-      font-size: 10px;
+      font-size: 9px;
       font-weight: 600;
       display: flex;
       align-items: center;
-      gap: 4px
+      gap: 3px
     }
 
     .badge-ws.on {
@@ -374,18 +393,18 @@
     .header-right {
       display: flex;
       align-items: center;
-      gap: 12px
+      gap: 8px
     }
 
     .clock {
       font-family: var(--mono);
-      font-size: 12px;
+      font-size: 11px;
       color: var(--text-muted);
       font-weight: 500
     }
 
     .btn {
-      padding: 6px 16px;
+      padding: 6px 14px;
       border-radius: 8px;
       border: 1px solid;
       cursor: pointer;
@@ -395,8 +414,9 @@
       transition: all 0.2s;
       display: flex;
       align-items: center;
-      gap: 6px;
-      background: transparent
+      gap: 5px;
+      background: transparent;
+      min-height: 34px
     }
 
     .btn-danger {
@@ -423,28 +443,39 @@
     .main {
       position: relative;
       z-index: 1;
-      padding: 20px 28px;
+      padding: 14px;
       max-width: 1600px;
-      margin: 0 auto
+      margin: 0 auto;
+      padding-bottom: calc(var(--nav-h) + var(--safe-bottom) + 16px)
     }
 
-    /* ═══ CARDS ═══ */
+    /* ═══ TAB SECTIONS ═══ */
+    .tab-section {
+      display: none
+    }
+
+    .tab-section.active {
+      display: block
+    }
+
+    /* ═══ CARDS — horizontal scroll on mobile ═══ */
     .cards {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
-      gap: 12px;
-      margin-bottom: 18px
+      gap: 10px;
+      margin-bottom: 14px
     }
 
     .card {
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 18px 20px;
+      padding: 14px 16px;
       backdrop-filter: blur(12px);
       transition: all 0.25s;
       position: relative;
-      overflow: hidden
+      overflow: hidden;
+      min-width: 0
     }
 
     .card:hover {
@@ -457,17 +488,17 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 10px
+      margin-bottom: 8px
     }
 
     .card-icon {
-      width: 34px;
-      height: 34px;
-      border-radius: 10px;
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 14px
+      font-size: 13px
     }
 
     .card-icon.balance {
@@ -496,7 +527,7 @@
     }
 
     .card-label {
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 500;
       color: var(--text-muted);
       text-transform: uppercase;
@@ -504,14 +535,14 @@
     }
 
     .card-value {
-      font-size: 24px;
+      font-size: 22px;
       font-weight: 700;
       letter-spacing: -0.8px;
       line-height: 1.2
     }
 
     .card-sub {
-      font-size: 11px;
+      font-size: 10px;
       color: var(--text-muted);
       margin-top: 2px;
       font-family: var(--mono);
@@ -529,9 +560,9 @@
     /* ═══ CONTENT ═══ */
     .content {
       display: grid;
-      grid-template-columns: 1fr 360px;
-      gap: 14px;
-      margin-bottom: 18px
+      grid-template-columns: 1fr 340px;
+      gap: 12px;
+      margin-bottom: 14px
     }
 
     .panel {
@@ -546,29 +577,29 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 14px 18px;
+      padding: 12px 14px;
       border-bottom: 1px solid var(--border)
     }
 
     .panel-title {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 7px;
       font-size: 13px;
       font-weight: 600
     }
 
     .panel-title i {
       color: var(--accent-light);
-      font-size: 14px
+      font-size: 13px
     }
 
     .pill {
       background: var(--accent-glow);
       color: var(--accent-light);
-      padding: 2px 10px;
+      padding: 2px 9px;
       border-radius: 12px;
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 600;
       font-family: var(--mono)
     }
@@ -577,19 +608,19 @@
     .table-wrap {
       width: 100%;
       overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
+      -webkit-overflow-scrolling: touch
     }
 
     table {
       width: 100%;
-      min-width: 500px;
+      min-width: 480px;
       border-collapse: collapse
     }
 
     th {
-      padding: 10px 14px;
+      padding: 8px 12px;
       text-align: left;
-      font-size: 10px;
+      font-size: 9px;
       font-weight: 600;
       color: var(--text-muted);
       text-transform: uppercase;
@@ -599,11 +630,11 @@
     }
 
     td {
-      padding: 11px 14px;
-      font-size: 12px;
+      padding: 9px 12px;
+      font-size: 11px;
       border-bottom: 1px solid rgba(88, 100, 220, 0.05);
       white-space: nowrap;
-      max-width: 200px;
+      max-width: 180px;
       overflow: hidden;
       text-overflow: ellipsis
     }
@@ -616,17 +647,17 @@
       font-weight: 600;
       display: flex;
       align-items: center;
-      gap: 6px
+      gap: 5px
     }
 
     .token-name i {
       color: var(--accent-light);
-      font-size: 10px
+      font-size: 9px
     }
 
     .mono {
       font-family: var(--mono);
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 500
     }
 
@@ -643,10 +674,10 @@
     .tag {
       display: inline-flex;
       align-items: center;
-      gap: 4px;
-      padding: 3px 8px;
-      border-radius: 6px;
-      font-size: 10px;
+      gap: 3px;
+      padding: 2px 7px;
+      border-radius: 5px;
+      font-size: 9px;
       font-weight: 600
     }
 
@@ -676,7 +707,7 @@
     }
 
     .empty-state {
-      padding: 40px;
+      padding: 32px;
       text-align: center;
       color: var(--text-muted);
       font-size: 12px
@@ -684,19 +715,159 @@
 
     .empty-state i {
       display: block;
-      font-size: 28px;
-      margin-bottom: 8px;
+      font-size: 24px;
+      margin-bottom: 6px;
       opacity: 0.3
+    }
+
+    /* ═══ MOBILE TRADE CARDS ═══ */
+    .trade-cards {
+      display: none
+    }
+
+    .trade-card {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px
+    }
+
+    .trade-card:last-child {
+      border-bottom: none
+    }
+
+    .trade-card-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0
+    }
+
+    .trade-card-icon.buy {
+      background: var(--green-soft);
+      color: var(--green)
+    }
+
+    .trade-card-icon.sell-win {
+      background: var(--green-soft);
+      color: var(--green)
+    }
+
+    .trade-card-icon.sell-loss {
+      background: var(--red-soft);
+      color: var(--red)
+    }
+
+    .trade-card-body {
+      flex: 1;
+      min-width: 0
+    }
+
+    .trade-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px
+    }
+
+    .trade-card-token {
+      font-weight: 700;
+      font-size: 13px
+    }
+
+    .trade-card-pnl {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 600
+    }
+
+    .trade-card-bottom {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 3px
+    }
+
+    .trade-card-time {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-muted)
+    }
+
+    .trade-card-type {
+      font-size: 9px
+    }
+
+    /* ═══ MOBILE POSITION CARDS ═══ */
+    .pos-cards {
+      display: none
+    }
+
+    .pos-card {
+      padding: 14px;
+      border-bottom: 1px solid var(--border)
+    }
+
+    .pos-card:last-child {
+      border-bottom: none
+    }
+
+    .pos-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px
+    }
+
+    .pos-card-token {
+      font-weight: 700;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px
+    }
+
+    .pos-card-token i {
+      color: var(--accent-light);
+      font-size: 10px
+    }
+
+    .pos-card-pnl {
+      font-family: var(--mono);
+      font-size: 14px;
+      font-weight: 700
+    }
+
+    .pos-card-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-bottom: 4px
+    }
+
+    .pos-card-row .label {
+      color: var(--text-muted)
+    }
+
+    .pos-card-row .val {
+      font-family: var(--mono);
+      font-weight: 500
     }
 
     /* ═══ AI LOG ═══ */
     .ai-log {
-      max-height: 520px;
+      max-height: 450px;
       overflow-y: auto
     }
 
     .ai-entry {
-      padding: 12px 16px;
+      padding: 10px 14px;
       border-bottom: 1px solid rgba(88, 100, 220, 0.05);
       transition: background 0.15s
     }
@@ -708,41 +879,42 @@
     .ai-meta {
       display: flex;
       align-items: center;
-      gap: 8px;
-      margin-bottom: 4px
+      gap: 6px;
+      margin-bottom: 3px;
+      flex-wrap: wrap
     }
 
     .ai-time {
       font-family: var(--mono);
-      font-size: 10px;
+      font-size: 9px;
       color: var(--text-muted);
       font-weight: 500
     }
 
     .ai-token {
       font-weight: 700;
-      font-size: 12px
+      font-size: 11px
     }
 
     .ai-reason {
       font-size: 11px;
       color: var(--text-secondary);
-      line-height: 1.55
+      line-height: 1.5
     }
 
     /* ═══ SCANNER ═══ */
     .scanner-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
-      gap: 6px;
-      padding: 10px
+      grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+      gap: 5px;
+      padding: 8px
     }
 
     .coin {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 9px 12px;
+      padding: 8px 10px;
       border-radius: var(--radius-sm);
       background: rgba(12, 17, 40, 0.5);
       border: 1px solid rgba(88, 100, 220, 0.05);
@@ -756,18 +928,18 @@
 
     .coin-sym {
       font-weight: 600;
-      font-size: 12px
+      font-size: 11px
     }
 
     .coin-price {
       font-family: var(--mono);
-      font-size: 10px;
+      font-size: 9px;
       color: var(--text-muted)
     }
 
     .coin-chg {
       font-family: var(--mono);
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 600
     }
 
@@ -779,8 +951,72 @@
       color: var(--red)
     }
 
+    /* ═══ BOTTOM NAV ═══ */
+    .mobile-nav {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 200;
+      background: rgba(5, 8, 22, 0.95);
+      backdrop-filter: blur(24px) saturate(1.5);
+      border-top: 1px solid var(--border);
+      padding-bottom: var(--safe-bottom)
+    }
+
+    .mobile-nav-inner {
+      display: flex;
+      height: var(--nav-h)
+    }
+
+    .nav-tab {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: var(--font);
+      font-size: 10px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: color 0.2s;
+      -webkit-tap-highlight-color: transparent;
+      position: relative
+    }
+
+    .nav-tab i {
+      font-size: 18px;
+      transition: transform 0.2s
+    }
+
+    .nav-tab.active {
+      color: var(--accent-light)
+    }
+
+    .nav-tab.active i {
+      transform: scale(1.1)
+    }
+
+    .nav-tab.active::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 25%;
+      right: 25%;
+      height: 2px;
+      border-radius: 0 0 2px 2px;
+      background: var(--accent-light)
+    }
+
+    /* ═══ SCROLLBAR ═══ */
     ::-webkit-scrollbar {
-      width: 4px
+      width: 3px;
+      height: 3px
     }
 
     ::-webkit-scrollbar-track {
@@ -792,6 +1028,7 @@
       border-radius: 10px
     }
 
+    /* ═══════════ RESPONSIVE ═══════════ */
     @media(max-width:1200px) {
       .cards {
         grid-template-columns: repeat(3, 1fr)
@@ -802,82 +1039,199 @@
       }
     }
 
-    @media(max-width:900px) {
-      .cards {
-        grid-template-columns: repeat(2, 1fr)
+    @media(max-width:768px) {
+
+      /* Show bottom nav & tab sections */
+      .mobile-nav {
+        display: block
+      }
+
+      .tab-section {
+        display: none !important
+      }
+
+      .tab-section.active {
+        display: block !important
+      }
+
+      /* Show mobile cards, hide tables */
+      .trade-cards {
+        display: block
+      }
+
+      .trade-table-desktop {
+        display: none
+      }
+
+      .pos-cards {
+        display: block
+      }
+
+      .pos-table-desktop {
+        display: none
       }
 
       .header {
-        flex-wrap: wrap;
-        height: auto;
-        padding: 10px 14px;
-        gap: 8px
+        padding: 0 12px;
+        height: 48px
       }
 
-      .header-left,
-      .header-right {
-        width: 100%;
-        justify-content: space-between
-      }
-
-      .header-badges {
-        flex-wrap: wrap
-      }
-
-      .scanner-grid {
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr))
-      }
-
-      .toast-container {
-        left: 12px;
-        right: 12px;
-        max-width: 100%
-      }
-    }
-
-    @media(max-width:600px) {
-      .cards {
-        grid-template-columns: 1fr
+      .header-right .clock {
+        display: none
       }
 
       .main {
-        padding: 10px
+        padding: 10px;
+        padding-bottom: calc(var(--nav-h) + var(--safe-bottom) + 12px)
+      }
+
+      .cards {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 4px;
+        margin: 0 -10px 12px -10px;
+        padding-left: 10px;
+        padding-right: 10px
+      }
+
+      .cards::-webkit-scrollbar {
+        display: none
+      }
+
+      .card {
+        min-width: 140px;
+        flex-shrink: 0;
+        scroll-snap-align: start;
+        padding: 12px 14px
       }
 
       .card-value {
-        font-size: 20px
+        font-size: 18px
+      }
+
+      .card-icon {
+        width: 26px;
+        height: 26px;
+        font-size: 11px
+      }
+
+      .content {
+        gap: 10px
+      }
+
+      .panel {
+        border-radius: 12px
       }
 
       .panel-head {
         padding: 10px 12px
       }
 
+      .panel-title {
+        font-size: 12px
+      }
+
+      .ai-log {
+        max-height: 350px
+      }
+
       .ai-entry {
         padding: 10px 12px
       }
 
+      .ai-reason {
+        font-size: 10px
+      }
+
+      .scanner-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 4px;
+        padding: 6px
+      }
+
       .coin {
-        padding: 7px 10px
+        padding: 7px 9px
       }
 
-      table {
-        min-width: 400px
-      }
-
-      th,
-      td {
-        padding: 8px 10px;
+      .coin-sym {
         font-size: 11px
       }
 
       .logo {
-        font-size: 15px
+        font-size: 14px
       }
 
       .logo-icon {
-        width: 28px;
-        height: 28px;
-        font-size: 13px
+        width: 26px;
+        height: 26px;
+        font-size: 11px;
+        border-radius: 7px
+      }
+
+      .badge-status {
+        padding: 2px 7px;
+        font-size: 9px
+      }
+
+      .badge-mode {
+        padding: 2px 6px;
+        font-size: 8px
+      }
+
+      .badge-ws {
+        display: none
+      }
+
+      .btn {
+        padding: 5px 10px;
+        font-size: 10px;
+        min-height: 30px
+      }
+    }
+
+    @media(max-width:380px) {
+      .card {
+        min-width: 125px;
+        padding: 10px 12px
+      }
+
+      .card-value {
+        font-size: 16px
+      }
+
+      .card-label {
+        font-size: 9px
+      }
+
+      .header {
+        padding: 0 8px
+      }
+
+      .main {
+        padding: 8px
+      }
+
+      .logo {
+        font-size: 13px;
+        gap: 6px
+      }
+
+      .scanner-grid {
+        grid-template-columns: 1fr 1fr
+      }
+    }
+
+    /* Desktop: hide mobile nav, show all sections */
+    @media(min-width:769px) {
+      .tab-section {
+        display: block !important
+      }
+
+      .mobile-nav {
+        display: none !important
       }
     }
   </style>
@@ -914,136 +1268,183 @@
   <!-- MAIN -->
   <main class="main">
 
-    <!-- Cards -->
-    <section class="cards">
-      <div class="card">
-        <div class="card-top">
-          <div class="card-icon balance"><i class="fa-solid fa-wallet"></i></div><span class="card-label">Balance</span>
+    <!-- TAB: Dashboard -->
+    <div class="tab-section active" data-tab="dashboard">
+      <!-- Cards -->
+      <section class="cards">
+        <div class="card">
+          <div class="card-top">
+            <div class="card-icon balance"><i class="fa-solid fa-wallet"></i></div><span
+              class="card-label">Balance</span>
+          </div>
+          <div class="card-value" id="balance">0.0000 SOL</div>
+          <div class="card-sub" id="balanceUsd">≈ $0.00</div>
         </div>
-        <div class="card-value" id="balance">0.0000 SOL</div>
-        <div class="card-sub" id="balanceUsd">≈ $0.00</div>
-      </div>
-      <div class="card">
-        <div class="card-top">
-          <div class="card-icon daily"><i class="fa-solid fa-chart-line"></i></div><span class="card-label">Daily
-            PnL</span>
+        <div class="card">
+          <div class="card-top">
+            <div class="card-icon daily"><i class="fa-solid fa-chart-line"></i></div><span class="card-label">Daily
+              PnL</span>
+          </div>
+          <div class="card-value" id="dailyPnl">0.0000 SOL</div>
+          <div class="card-sub" id="dailyPnlUsd">≈ $0.00</div>
         </div>
-        <div class="card-value" id="dailyPnl">0.0000 SOL</div>
-        <div class="card-sub" id="dailyPnlUsd">≈ $0.00</div>
-      </div>
-      <div class="card">
-        <div class="card-top">
-          <div class="card-icon total"><i class="fa-solid fa-sack-dollar"></i></div><span class="card-label">Total
-            PnL</span>
+        <div class="card">
+          <div class="card-top">
+            <div class="card-icon total"><i class="fa-solid fa-sack-dollar"></i></div><span class="card-label">Total
+              PnL</span>
+          </div>
+          <div class="card-value" id="totalPnl">0.0000 SOL</div>
+          <div class="card-sub" id="totalPnlUsd">≈ $0.00</div>
         </div>
-        <div class="card-value" id="totalPnl">0.0000 SOL</div>
-        <div class="card-sub" id="totalPnlUsd">≈ $0.00</div>
-      </div>
-      <div class="card">
-        <div class="card-top">
-          <div class="card-icon winrate"><i class="fa-solid fa-trophy"></i></div><span class="card-label">Win
-            Rate</span>
+        <div class="card">
+          <div class="card-top">
+            <div class="card-icon winrate"><i class="fa-solid fa-trophy"></i></div><span class="card-label">Win
+              Rate</span>
+          </div>
+          <div class="card-value" id="winRate">--%</div>
+          <div class="card-sub" id="winLoss">W:0 L:0</div>
         </div>
-        <div class="card-value" id="winRate">--%</div>
-        <div class="card-sub" id="winLoss">W:0 L:0</div>
-      </div>
-      <div class="card">
-        <div class="card-top">
-          <div class="card-icon positions"><i class="fa-solid fa-layer-group"></i></div><span
-            class="card-label">Positions</span>
+        <div class="card">
+          <div class="card-top">
+            <div class="card-icon positions"><i class="fa-solid fa-layer-group"></i></div><span
+              class="card-label">Positions</span>
+          </div>
+          <div class="card-value" id="posCount">0</div>
+          <div class="card-sub" id="posSize">Per trade: -- SOL</div>
         </div>
-        <div class="card-value" id="posCount">0</div>
-        <div class="card-sub" id="posSize">Per trade: -- SOL</div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Content -->
-    <section class="content">
-      <div>
-        <!-- Positions -->
-        <div class="panel" style="margin-bottom:14px">
-          <div class="panel-head">
-            <div class="panel-title"><i class="fa-solid fa-crosshairs"></i> Active Positions</div>
-            <span class="pill" id="posCountBadge">0</span>
+      <!-- Content -->
+      <section class="content">
+        <div>
+          <!-- Positions -->
+          <div class="panel" style="margin-bottom:12px">
+            <div class="panel-head">
+              <div class="panel-title"><i class="fa-solid fa-crosshairs"></i> Active Positions</div>
+              <span class="pill" id="posCountBadge">0</span>
+            </div>
+            <!-- Desktop table -->
+            <div class="table-wrap pos-table-desktop">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Token</th>
+                    <th>Entry</th>
+                    <th>Current</th>
+                    <th>PnL</th>
+                    <th>TP / SL</th>
+                    <th>Size</th>
+                    <th>Duration</th>
+                  </tr>
+                </thead>
+                <tbody id="positionsTable">
+                  <tr>
+                    <td colspan="7" class="empty-state"><i class="fa-regular fa-folder-open"></i>No open positions</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <!-- Mobile cards -->
+            <div class="pos-cards" id="positionsCards">
+              <div class="empty-state"><i class="fa-regular fa-folder-open"></i>No open positions</div>
+            </div>
           </div>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Token</th>
-                  <th>Entry</th>
-                  <th>Current</th>
-                  <th>PnL</th>
-                  <th>TP / SL</th>
-                  <th>Size</th>
-                  <th>Duration</th>
-                </tr>
-              </thead>
-              <tbody id="positionsTable">
-                <tr>
-                  <td colspan="7" class="empty-state"><i class="fa-regular fa-folder-open"></i>No open positions</td>
-                </tr>
-              </tbody>
-            </table>
+
+          <!-- Trades -->
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-title"><i class="fa-solid fa-clock-rotate-left"></i> Trade History</div>
+              <span class="pill" id="tradeCountBadge">0</span>
+            </div>
+            <!-- Desktop table -->
+            <div class="table-wrap trade-table-desktop" style="max-height:280px;overflow-y:auto">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Time</th>
+                    <th>Type</th>
+                    <th>Token</th>
+                    <th>PnL (SOL)</th>
+                    <th>PnL (USD)</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="tradesTable">
+                  <tr>
+                    <td colspan="6" class="empty-state"><i class="fa-regular fa-clock"></i>No trades yet</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <!-- Mobile cards -->
+            <div class="trade-cards" id="tradeCards" style="max-height:350px;overflow-y:auto">
+              <div class="empty-state"><i class="fa-regular fa-clock"></i>No trades yet</div>
+            </div>
           </div>
         </div>
-        <!-- Trades -->
+
+        <!-- AI Log -->
         <div class="panel">
           <div class="panel-head">
-            <div class="panel-title"><i class="fa-solid fa-clock-rotate-left"></i> Trade History</div>
-            <span class="pill" id="tradeCountBadge">0</span>
+            <div class="panel-title"><i class="fa-solid fa-brain"></i> AI Decisions</div>
+            <span class="pill" id="aiCountBadge">0</span>
           </div>
-          <div class="table-wrap" style="max-height:280px;overflow-y:auto">
-            <table>
-              <thead>
-                <tr>
-                  <th>Time</th>
-                  <th>Type</th>
-                  <th>Token</th>
-                  <th>PnL (SOL)</th>
-                  <th>PnL (USD)</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody id="tradesTable">
-                <tr>
-                  <td colspan="6" class="empty-state"><i class="fa-regular fa-clock"></i>No trades yet</td>
-                </tr>
-              </tbody>
-            </table>
+          <div class="ai-log" id="aiLog">
+            <div class="empty-state"><i class="fa-solid fa-robot"></i>Waiting for AI decisions...</div>
           </div>
         </div>
-      </div>
-      <!-- AI Log -->
-      <div class="panel">
-        <div class="panel-head">
-          <div class="panel-title"><i class="fa-solid fa-brain"></i> AI Decisions</div>
-          <span class="pill" id="aiCountBadge">0</span>
-        </div>
-        <div class="ai-log" id="aiLog">
-          <div class="empty-state"><i class="fa-solid fa-robot"></i>Waiting for AI decisions...</div>
-        </div>
-      </div>
-    </section>
+      </section>
+    </div>
 
-    <!-- Scanner -->
-    <section class="panel">
-      <div class="panel-head">
-        <div class="panel-title"><i class="fa-solid fa-satellite-dish"></i> Market Scanner</div>
-        <span class="pill" id="scanCountBadge">0 coins</span>
-      </div>
-      <div class="scanner-grid" id="scannerGrid">
-        <div class="empty-state" style="grid-column:1/-1"><i class="fa-solid fa-radar"></i>Waiting for first scan...
+    <!-- TAB: Scanner (mobile only shows via tab) -->
+    <div class="tab-section active" data-tab="scanner">
+      <section class="panel">
+        <div class="panel-head">
+          <div class="panel-title"><i class="fa-solid fa-satellite-dish"></i> Market Scanner</div>
+          <span class="pill" id="scanCountBadge">0 coins</span>
         </div>
-      </div>
-    </section>
+        <div class="scanner-grid" id="scannerGrid">
+          <div class="empty-state" style="grid-column:1/-1"><i class="fa-solid fa-satellite-dish"></i>Waiting for first
+            scan...</div>
+        </div>
+      </section>
+    </div>
   </main>
 
+  <!-- BOTTOM NAV (mobile) -->
+  <nav class="mobile-nav">
+    <div class="mobile-nav-inner">
+      <button class="nav-tab active" data-target="dashboard" onclick="switchTab('dashboard')">
+        <i class="fa-solid fa-chart-pie"></i>
+        <span>Dashboard</span>
+      </button>
+      <button class="nav-tab" data-target="scanner" onclick="switchTab('scanner')">
+        <i class="fa-solid fa-satellite-dish"></i>
+        <span>Scanner</span>
+      </button>
+      <button class="nav-tab" onclick="toggleBotAction()">
+        <i class="fa-solid fa-power-off" id="navPowerIcon"></i>
+        <span id="navPowerText">Stop</span>
+      </button>
+    </div>
+  </nav>
+
   <script>
-    let ws = null, wsConnected = false, aiDecisions = [], solPrice = 0, startBalance = 0, knownTradeIds = new Set();
+    let ws = null, wsConnected = false, aiDecisions = [], solPrice = 0, startBalance = 0, knownTradeIds = new Set(), botRunning = true;
+
+    // ═══ TAB SWITCH ═══
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
+      document.querySelector(`.tab-section[data-tab="${tab}"]`).classList.add('active');
+      document.querySelectorAll('.nav-tab[data-target]').forEach(t => t.classList.toggle('active', t.dataset.target === tab));
+    }
+
+    function toggleBotAction() {
+      if (botRunning) stopBot(); else startBot();
+    }
 
     // ═══ TOAST ═══
-    function showToast(type, title, detail, dur = 6000) {
+    function showToast(type, title, detail, dur = 5000) {
       const c = document.getElementById('toastContainer'), t = document.createElement('div');
       t.className = 'toast ' + type;
       const icons = { win: 'fa-solid fa-arrow-trend-up', loss: 'fa-solid fa-arrow-trend-down', info: 'fa-solid fa-bolt' };
@@ -1066,17 +1467,29 @@
 
     function handleEvent(type, data) {
       switch (type) {
-        case 'status': updateStatus(data); break; case 'positions': updatePositions(data); break;
-        case 'scan': updateScanner(data); break; case 'ai_decision': addAIDecision(data); break;
-        case 'stats': updateStats(data); break; case 'trades': updateTrades(data); break; case 'trade': onNewTrade(data); break;
+        case 'status': updateStatus(data); break;
+        case 'positions': updatePositions(data); break;
+        case 'scan': updateScanner(data); break;
+        case 'ai_decision': addAIDecision(data); break;
+        case 'stats': updateStats(data); break;
+        case 'trades': updateTrades(data); break;
+        case 'trade': onNewTrade(data); break;
       }
     }
 
     // ═══ STATUS ═══
     function updateStatus(s) {
       const b = document.getElementById('statusBadge'), t = document.getElementById('statusText');
-      if (s.running) { b.className = 'badge-status running'; t.textContent = 'RUNNING'; document.getElementById('btnStop').style.display = ''; document.getElementById('btnStart').style.display = 'none' }
-      else { b.className = 'badge-status stopped'; t.textContent = 'STOPPED'; document.getElementById('btnStop').style.display = 'none'; document.getElementById('btnStart').style.display = '' }
+      botRunning = s.running;
+      if (s.running) {
+        b.className = 'badge-status running'; t.textContent = 'RUNNING';
+        document.getElementById('btnStop').style.display = ''; document.getElementById('btnStart').style.display = 'none';
+        document.getElementById('navPowerIcon').style.color = 'var(--red)'; document.getElementById('navPowerText').textContent = 'Stop';
+      } else {
+        b.className = 'badge-status stopped'; t.textContent = 'STOPPED';
+        document.getElementById('btnStop').style.display = 'none'; document.getElementById('btnStart').style.display = '';
+        document.getElementById('navPowerIcon').style.color = 'var(--green)'; document.getElementById('navPowerText').textContent = 'Start';
+      }
       if (!startBalance && s.balance > 0) startBalance = s.balance;
       const bal = s.balance || 0;
       document.getElementById('balance').textContent = bal.toFixed(4) + ' SOL';
@@ -1092,6 +1505,7 @@
       document.getElementById('posSize').textContent = 'Per trade: ' + (s.positionSizeSol || 0).toFixed(4) + ' SOL';
       if (s.config) document.getElementById('modeBadge').textContent = s.config.mode;
     }
+
     function updateStats(st) {
       const total = (st.wins || 0) + (st.losses || 0), wr = total > 0 ? ((st.wins / total) * 100).toFixed(0) : '--';
       document.getElementById('winRate').textContent = wr + '%';
@@ -1101,13 +1515,33 @@
 
     // ═══ POSITIONS ═══
     function updatePositions(pos) {
+      // Desktop table
       const tb = document.getElementById('positionsTable');
-      if (!pos || !pos.length) { tb.innerHTML = '<tr><td colspan="7" class="empty-state"><i class="fa-regular fa-folder-open"></i>No open positions</td></tr>'; return }
+      // Mobile cards
+      const mc = document.getElementById('positionsCards');
+
+      if (!pos || !pos.length) {
+        tb.innerHTML = '<tr><td colspan="7" class="empty-state"><i class="fa-regular fa-folder-open"></i>No open positions</td></tr>';
+        mc.innerHTML = '<div class="empty-state"><i class="fa-regular fa-folder-open"></i>No open positions</div>';
+        return;
+      }
       const now = Date.now();
+
+      // Desktop
       tb.innerHTML = pos.map(p => {
         const pct = p.entryPrice > 0 ? ((p.currentPrice - p.entryPrice) / p.entryPrice * 100) : 0;
         const pSol = p.amountSol * (pct / 100), pUsd = pSol * solPrice, cls = pct >= 0 ? 'pnl-pos' : 'pnl-neg', dur = fmtDur(now - p.openedAt);
-        return '<tr><td class="token-name"><i class="fa-solid fa-coins"></i>' + p.token + '</td><td class="mono">$' + fmtP(p.entryPrice) + '</td><td class="mono">$' + fmtP(p.currentPrice) + '</td><td class="' + cls + '">' + (pct > 0 ? '+' : '') + pct.toFixed(1) + '% <span style="font-size:10px;opacity:0.7">(' + (pUsd > 0 ? '+' : '') + ' $' + Math.abs(pUsd).toFixed(2) + ')</span></td><td class="mono" style="font-size:10px"><span style="color:var(--green)"><i class="fa-solid fa-arrow-up" style="font-size:8px"></i>' + fmtP(p.tp) + '</span> <span style="color:var(--red)"><i class="fa-solid fa-arrow-down" style="font-size:8px"></i>' + fmtP(p.sl) + '</span></td><td class="mono">' + p.amountSol.toFixed(4) + '</td><td class="mono" style="color:var(--text-muted)">' + dur + '</td></tr>';
+        return '<tr><td class="token-name"><i class="fa-solid fa-coins"></i>' + p.token + '</td><td class="mono">$' + fmtP(p.entryPrice) + '</td><td class="mono">$' + fmtP(p.currentPrice) + '</td><td class="' + cls + '">' + (pct > 0 ? '+' : '') + pct.toFixed(1) + '% <span style="font-size:10px;opacity:0.7">(' + (pUsd > 0 ? '+' : '') + '$' + Math.abs(pUsd).toFixed(2) + ')</span></td><td class="mono" style="font-size:10px"><span style="color:var(--green)"><i class="fa-solid fa-arrow-up" style="font-size:8px"></i>' + fmtP(p.tp) + '</span> <span style="color:var(--red)"><i class="fa-solid fa-arrow-down" style="font-size:8px"></i>' + fmtP(p.sl) + '</span></td><td class="mono">' + p.amountSol.toFixed(4) + '</td><td class="mono" style="color:var(--text-muted)">' + dur + '</td></tr>';
+      }).join('');
+
+      // Mobile cards
+      mc.innerHTML = pos.map(p => {
+        const pct = p.entryPrice > 0 ? ((p.currentPrice - p.entryPrice) / p.entryPrice * 100) : 0;
+        const pUsd = p.amountSol * (pct / 100) * solPrice, cls = pct >= 0 ? 'pnl-pos' : 'pnl-neg', dur = fmtDur(now - p.openedAt);
+        return '<div class="pos-card"><div class="pos-card-top"><div class="pos-card-token"><i class="fa-solid fa-coins"></i>' + p.token + '</div><div class="pos-card-pnl ' + cls + '">' + (pct > 0 ? '+' : '') + pct.toFixed(1) + '%</div></div>' +
+          '<div class="pos-card-row"><span class="label">Entry / Current</span><span class="val">$' + fmtP(p.entryPrice) + ' → $' + fmtP(p.currentPrice) + '</span></div>' +
+          '<div class="pos-card-row"><span class="label">TP / SL</span><span class="val"><span style="color:var(--green)">↑' + fmtP(p.tp) + '</span> <span style="color:var(--red)">↓' + fmtP(p.sl) + '</span></span></div>' +
+          '<div class="pos-card-row"><span class="label">Size / Duration</span><span class="val">' + p.amountSol.toFixed(4) + ' SOL · ' + dur + '</span></div></div>';
       }).join('');
     }
 
@@ -1137,18 +1571,43 @@
 
     // ═══ TRADES ═══
     function updateTrades(trades) {
+      // Desktop table
       const tb = document.getElementById('tradesTable');
-      if (!trades || !trades.length) { tb.innerHTML = '<tr><td colspan="6" class="empty-state"><i class="fa-regular fa-clock"></i>No trades yet</td></tr>'; return }
+      // Mobile cards
+      const mc = document.getElementById('tradeCards');
+
+      if (!trades || !trades.length) {
+        tb.innerHTML = '<tr><td colspan="6" class="empty-state"><i class="fa-regular fa-clock"></i>No trades yet</td></tr>';
+        mc.innerHTML = '<div class="empty-state"><i class="fa-regular fa-clock"></i>No trades yet</div>';
+        return;
+      }
       trades.forEach(t => { if (t.id) knownTradeIds.add(t.id) });
-      tb.innerHTML = trades.slice(0, 20).map(t => {
+      const list = trades.slice(0, 20);
+
+      // Desktop
+      tb.innerHTML = list.map(t => {
         const time = new Date(t.timestamp).toLocaleTimeString(), pnl = t.pnl || 0, pUsd = pnl * solPrice;
         const tCls = t.type === 'BUY' ? 'tag-buy' : 'tag-sell', pCls = pnl >= 0 ? 'pnl-pos' : 'pnl-neg';
         const sCls = t.status === 'SUCCESS' ? 'tag-ok' : 'tag-fail', token = t.token_name || (t.output_mint || '').slice(0, 8);
         const tIcon = t.type === 'BUY' ? 'fa-solid fa-arrow-right-to-bracket' : 'fa-solid fa-arrow-right-from-bracket';
         const sIcon = t.status === 'SUCCESS' ? 'fa-solid fa-check' : 'fa-solid fa-xmark';
-        return '<tr><td class="mono">' + time + '</td><td><span class="tag ' + tCls + '"><i class="' + tIcon + '"></i> ' + t.type + '</span></td><td class="token-name"><i class="fa-solid fa-coins"></i>' + token + '</td><td class="' + pCls + ' mono">' + (pnl > 0 ? '+' : '') + pnl.toFixed(4) + '</td><td class="' + pCls + ' mono">' + (pUsd > 0 ? '+' : '') + ' $' + Math.abs(pUsd).toFixed(2) + '</td><td><span class="tag ' + sCls + '"><i class="' + sIcon + '"></i> ' + t.status + '</span></td></tr>';
+        return '<tr><td class="mono">' + time + '</td><td><span class="tag ' + tCls + '"><i class="' + tIcon + '"></i> ' + t.type + '</span></td><td class="token-name"><i class="fa-solid fa-coins"></i>' + token + '</td><td class="' + pCls + ' mono">' + (pnl > 0 ? '+' : '') + pnl.toFixed(4) + '</td><td class="' + pCls + ' mono">' + (pUsd > 0 ? '+' : '') + '$' + Math.abs(pUsd).toFixed(2) + '</td><td><span class="tag ' + sCls + '"><i class="' + sIcon + '"></i> ' + t.status + '</span></td></tr>';
+      }).join('');
+
+      // Mobile cards
+      mc.innerHTML = list.map(t => {
+        const time = new Date(t.timestamp).toLocaleTimeString(), pnl = t.pnl || 0, pUsd = pnl * solPrice;
+        const token = t.token_name || (t.output_mint || '').slice(0, 8);
+        const isBuy = t.type === 'BUY';
+        const iconCls = isBuy ? 'buy' : (pnl >= 0 ? 'sell-win' : 'sell-loss');
+        const icon = isBuy ? 'fa-solid fa-arrow-right-to-bracket' : 'fa-solid fa-arrow-right-from-bracket';
+        const pCls = pnl >= 0 ? 'pnl-pos' : 'pnl-neg';
+        const tCls = isBuy ? 'tag-buy' : 'tag-sell';
+        const pnlTxt = isBuy ? '--' : ((pnl > 0 ? '+' : '') + '$' + Math.abs(pUsd).toFixed(2));
+        return '<div class="trade-card"><div class="trade-card-icon ' + iconCls + '"><i class="' + icon + '"></i></div><div class="trade-card-body"><div class="trade-card-top"><span class="trade-card-token">' + token + '</span><span class="trade-card-pnl ' + pCls + '">' + pnlTxt + '</span></div><div class="trade-card-bottom"><span class="trade-card-time">' + time + '</span><span class="tag trade-card-type ' + tCls + '">' + t.type + '</span></div></div></div>';
       }).join('');
     }
+
     function onNewTrade(data) {
       fetch('/api/trades').then(r => r.json()).then(trades => {
         updateTrades(trades);
